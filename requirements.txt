@@ -1,0 +1,8 @@
+# Core dependencies
+pip install torch torchvision psutil numpy matplotlib seaborn
+
+# For LLM compression (additional)
+pip install transformers datasets peft bitsandbytes accelerate
+
+# For CUDA support (recommended)
+pip install torch --index-url https://download.pytorch.org/whl/cu118

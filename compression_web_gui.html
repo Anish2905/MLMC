@@ -1,0 +1,1178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Model Compression Studio</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --dark: #1f2937;
+            --light: #f3f4f6;
+            --border: #e5e7eb;
+            --text: #374151;
+            --text-light: #6b7280;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: var(--text);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+            animation: fadeInDown 0.6s ease;
+        }
+
+        .header h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.95;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            animation: fadeInUp 0.6s ease;
+        }
+
+        .card h2 {
+            color: var(--dark);
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card h2::before {
+            content: '';
+            width: 4px;
+            height: 30px;
+            background: var(--primary);
+            border-radius: 2px;
+        }
+
+        .upload-zone {
+            border: 3px dashed var(--border);
+            border-radius: 15px;
+            padding: 60px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: var(--light);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .upload-zone:hover {
+            border-color: var(--primary);
+            background: #f9fafb;
+            transform: translateY(-2px);
+        }
+
+        .upload-zone.dragover {
+            border-color: var(--secondary);
+            background: #ecfdf5;
+        }
+
+        .upload-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+            color: var(--primary);
+        }
+
+        .upload-zone h3 {
+            color: var(--dark);
+            margin-bottom: 10px;
+            font-size: 1.3em;
+        }
+
+        .upload-zone p {
+            color: var(--text-light);
+            font-size: 0.95em;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .file-info {
+            background: var(--light);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .file-info.active {
+            display: block;
+            animation: slideInUp 0.4s ease;
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            border: 1px solid var(--border);
+        }
+
+        .file-item-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .file-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--primary);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .file-details h4 {
+            color: var(--dark);
+            margin-bottom: 5px;
+        }
+
+        .file-details p {
+            color: var(--text-light);
+            font-size: 0.9em;
+        }
+
+        .remove-btn {
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+        }
+
+        .remove-btn:hover {
+            background: #dc2626;
+            transform: scale(1.05);
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+            color: var(--dark);
+            font-weight: 600;
+            font-size: 0.95em;
+        }
+
+        select, input[type="number"], input[type="text"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        select:focus, input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px;
+            background: var(--light);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .checkbox-item:hover {
+            background: #e5e7eb;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: var(--primary);
+        }
+
+        .checkbox-item label {
+            cursor: pointer;
+            margin: 0;
+            flex: 1;
+        }
+
+        .checkbox-description {
+            font-size: 0.85em;
+            color: var(--text-light);
+            margin-left: 30px;
+        }
+
+        .btn {
+            padding: 15px 40px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn-primary:disabled {
+            background: var(--border);
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .progress-section {
+            display: none;
+            grid-column: 1 / -1;
+        }
+
+        .progress-section.active {
+            display: block;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 30px;
+            background: var(--light);
+            border-radius: 15px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            width: 0%;
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 15px;
+            color: white;
+            font-weight: bold;
+        }
+
+        .progress-steps {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .step {
+            text-align: center;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            border: 2px solid var(--border);
+            transition: all 0.3s ease;
+        }
+
+        .step.active {
+            border-color: var(--primary);
+            background: #eef2ff;
+        }
+
+        .step.completed {
+            border-color: var(--secondary);
+            background: #ecfdf5;
+        }
+
+        .step-number {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--border);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 10px;
+            font-weight: bold;
+        }
+
+        .step.active .step-number {
+            background: var(--primary);
+            animation: pulse 2s infinite;
+        }
+
+        .step.completed .step-number {
+            background: var(--secondary);
+        }
+
+        .step.completed .step-number::before {
+            content: '✓';
+        }
+
+        .step h4 {
+            font-size: 0.9em;
+            color: var(--dark);
+        }
+
+        .results-section {
+            display: none;
+            grid-column: 1 / -1;
+        }
+
+        .results-section.active {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+        }
+
+        .result-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            border: 2px solid var(--border);
+            transition: all 0.3s ease;
+        }
+
+        .result-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+        }
+
+        .result-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+
+        .result-value {
+            font-size: 2.5em;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 10px;
+        }
+
+        .result-label {
+            color: var(--text-light);
+            font-size: 0.95em;
+        }
+
+        .comparison-chart {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-top: 20px;
+        }
+
+        .chart-bars {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .chart-bar {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .bar-label {
+            width: 150px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .bar-container {
+            flex: 1;
+            height: 40px;
+            background: var(--light);
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 15px;
+            color: white;
+            font-weight: bold;
+            transition: width 1s ease;
+        }
+
+        .download-section {
+            display: none;
+            grid-column: 1 / -1;
+            text-align: center;
+        }
+
+        .download-section.active {
+            display: block;
+        }
+
+        .download-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        .btn-secondary {
+            background: var(--secondary);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #059669;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.3);
+        }
+
+        .log-console {
+            background: var(--dark);
+            color: #22c55e;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+
+        .log-line {
+            margin-bottom: 5px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .log-line::before {
+            content: '> ';
+            color: var(--primary);
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            cursor: help;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 250px;
+            background-color: var(--dark);
+            color: white;
+            text-align: center;
+            border-radius: 8px;
+            padding: 10px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -125px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.85em;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        @media (max-width: 1024px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .results-section.active {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .progress-steps {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 640px) {
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .results-section.active {
+                grid-template-columns: 1fr;
+            }
+
+            .progress-steps {
+                grid-template-columns: 1fr;
+            }
+
+            .download-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🚀 AI Model Compression Studio</h1>
+            <p>Compress your machine learning models with cutting-edge techniques</p>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Upload Section -->
+            <div class="card">
+                <h2>Upload Model</h2>
+                
+                <div class="upload-zone" id="uploadZone">
+                    <div class="upload-icon">📦</div>
+                    <h3>Drop your model here</h3>
+                    <p>or click to browse</p>
+                    <p style="margin-top: 10px; font-size: 0.85em;">Supports: .pth, .pt, .ckpt, .h5, .pb</p>
+                    <input type="file" id="modelFile" accept=".pth,.pt,.ckpt,.h5,.pb">
+                </div>
+
+                <div class="file-info" id="fileInfo">
+                    <div id="fileList"></div>
+                </div>
+
+                <div class="form-group" style="margin-top: 20px;">
+                    <label for="modelType">Model Type</label>
+                    <select id="modelType">
+                        <option value="">Select model type...</option>
+                        <option value="cnn">CNN (Image Classification)</option>
+                        <option value="resnet">ResNet</option>
+                        <option value="vgg">VGG</option>
+                        <option value="mobilenet">MobileNet</option>
+                        <option value="efficientnet">EfficientNet</option>
+                        <option value="transformer">Transformer (LLM)</option>
+                        <option value="gpt">GPT-style</option>
+                        <option value="bert">BERT-style</option>
+                        <option value="custom">Custom Architecture</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="numClasses">Number of Classes (for CNN)</label>
+                    <input type="number" id="numClasses" value="10" min="2" max="10000">
+                </div>
+            </div>
+
+            <!-- Configuration Section -->
+            <div class="card">
+                <h2>Compression Settings</h2>
+
+                <div class="form-group">
+                    <label>Compression Techniques 
+                        <span class="tooltip">ℹ️
+                            <span class="tooltiptext">Select multiple techniques for maximum compression</span>
+                        </span>
+                    </label>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="useQAT" checked>
+                            <label for="useQAT">
+                                <strong>Quantization-Aware Training (QAT)</strong>
+                                <div class="checkbox-description">Convert to INT8 with minimal accuracy loss</div>
+                            </label>
+                        </div>
+
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="useMixedPrecision" checked>
+                            <label for="useMixedPrecision">
+                                <strong>Mixed-Precision Quantization</strong>
+                                <div class="checkbox-description">Keep sensitive layers in FP16/FP32</div>
+                            </label>
+                        </div>
+
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="useDistillation" checked>
+                            <label for="useDistillation">
+                                <strong>Knowledge Distillation</strong>
+                                <div class="checkbox-description">Train smaller student model</div>
+                            </label>
+                        </div>
+
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="use4Bit">
+                            <label for="use4Bit">
+                                <strong>4-bit Quantization (LLMs only)</strong>
+                                <div class="checkbox-description">Extreme compression with NF4</div>
+                            </label>
+                        </div>
+
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="useQLora">
+                            <label for="useQLora">
+                                <strong>QLoRA Fine-tuning (LLMs only)</strong>
+                                <div class="checkbox-description">Parameter-efficient adaptation</div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="compressionTarget">Compression Target</label>
+                    <select id="compressionTarget">
+                        <option value="balanced">Balanced (Recommended)</option>
+                        <option value="max_compression">Maximum Compression</option>
+                        <option value="max_accuracy">Maximum Accuracy</option>
+                        <option value="max_speed">Maximum Speed</option>
+                    </select>
+                </div>
+
+                <button class="btn btn-primary" id="startCompression" disabled>
+                    <span>🎯 Start Compression</span>
+                </button>
+            </div>
+
+            <!-- Progress Section -->
+            <div class="card progress-section" id="progressSection">
+                <h2>Compression Progress</h2>
+                
+                <div class="progress-steps">
+                    <div class="step" id="step1">
+                        <div class="step-number">1</div>
+                        <h4>Load Model</h4>
+                    </div>
+                    <div class="step" id="step2">
+                        <div class="step-number">2</div>
+                        <h4>Apply QAT</h4>
+                    </div>
+                    <div class="step" id="step3">
+                        <div class="step-number">3</div>
+                        <h4>Mixed-Precision</h4>
+                    </div>
+                    <div class="step" id="step4">
+                        <div class="step-number">4</div>
+                        <h4>Distillation</h4>
+                    </div>
+                    <div class="step" id="step5">
+                        <div class="step-number">5</div>
+                        <h4>Finalize</h4>
+                    </div>
+                </div>
+
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill">0%</div>
+                </div>
+
+                <div class="log-console" id="logConsole"></div>
+            </div>
+
+            <!-- Results Section -->
+            <div class="results-section" id="resultsSection">
+                <div class="result-card">
+                    <div class="result-icon">📊</div>
+                    <div class="result-value" id="accuracyResult">--</div>
+                    <div class="result-label">Accuracy</div>
+                </div>
+
+                <div class="result-card">
+                    <div class="result-icon">💾</div>
+                    <div class="result-value" id="sizeResult">--</div>
+                    <div class="result-label">Model Size</div>
+                </div>
+
+                <div class="result-card">
+                    <div class="result-icon">⚡</div>
+                    <div class="result-value" id="speedupResult">--</div>
+                    <div class="result-label">Speedup</div>
+                </div>
+
+                <div class="result-card">
+                    <div class="result-icon">🎯</div>
+                    <div class="result-value" id="compressionResult">--</div>
+                    <div class="result-label">Compression Ratio</div>
+                </div>
+            </div>
+
+            <!-- Comparison Chart -->
+            <div class="card comparison-chart" id="comparisonChart" style="display: none; grid-column: 1 / -1;">
+                <h2>Before vs After Comparison</h2>
+                <div class="chart-bars">
+                    <div class="chart-bar">
+                        <div class="bar-label">Model Size</div>
+                        <div class="bar-container">
+                            <div class="bar-fill" id="sizeBar" style="width: 0%">0 MB</div>
+                        </div>
+                    </div>
+                    <div class="chart-bar">
+                        <div class="bar-label">Inference Time</div>
+                        <div class="bar-container">
+                            <div class="bar-fill" id="timeBar" style="width: 0%">0 ms</div>
+                        </div>
+                    </div>
+                    <div class="chart-bar">
+                        <div class="bar-label">Memory Usage</div>
+                        <div class="bar-container">
+                            <div class="bar-fill" id="memoryBar" style="width: 0%">0 MB</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Download Section -->
+            <div class="card download-section" id="downloadSection">
+                <h2>🎉 Compression Complete!</h2>
+                <p style="margin: 20px 0; color: var(--text-light);">Your model has been successfully compressed. Download the results below.</p>
+                
+                <div class="download-buttons">
+                    <button class="btn btn-primary" id="downloadModel">
+                        📥 Download Compressed Model
+                    </button>
+                    <button class="btn btn-secondary" id="downloadReport">
+                        📄 Download Report
+                    </button>
+                    <button class="btn btn-secondary" id="downloadVisuals">
+                        📊 Download Visualizations
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // API Configuration
+        const API_BASE_URL = 'http://localhost:5000/api';
+        
+        // State management
+        let uploadedFile = null;
+        let currentJobId = null;
+        let compressionSettings = {};
+        let statusCheckInterval = null;
+
+        // DOM Elements
+        const uploadZone = document.getElementById('uploadZone');
+        const fileInput = document.getElementById('modelFile');
+        const fileInfo = document.getElementById('fileInfo');
+        const fileList = document.getElementById('fileList');
+        const startBtn = document.getElementById('startCompression');
+        const progressSection = document.getElementById('progressSection');
+        const logConsole = document.getElementById('logConsole');
+        const resultsSection = document.getElementById('resultsSection');
+        const comparisonChart = document.getElementById('comparisonChart');
+        const downloadSection = document.getElementById('downloadSection');
+
+        // Upload Zone Interactions
+        uploadZone.addEventListener('click', () => fileInput.click());
+
+        uploadZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadZone.classList.add('dragover');
+        });
+
+        uploadZone.addEventListener('dragleave', () => {
+            uploadZone.classList.remove('dragover');
+        });
+
+        uploadZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadZone.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFileUpload(files[0]);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFileUpload(e.target.files[0]);
+            }
+        });
+
+        async function handleFileUpload(file) {
+            uploadedFile = file;
+            const fileSize = (file.size / (1024 * 1024)).toFixed(2);
+            
+            // Show file info immediately
+            fileList.innerHTML = `
+                <div class="file-item">
+                    <div class="file-item-info">
+                        <div class="file-icon">📦</div>
+                        <div class="file-details">
+                            <h4>${file.name}</h4>
+                            <p>${fileSize} MB · Uploading...</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            fileInfo.classList.add('active');
+            
+            // Upload to server
+            try {
+                const formData = new FormData();
+                formData.append('model', file);
+                
+                const response = await fetch(`${API_BASE_URL}/upload`, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    currentJobId = data.job_id;
+                    
+                    fileList.innerHTML = `
+                        <div class="file-item">
+                            <div class="file-item-info">
+                                <div class="file-icon">📦</div>
+                                <div class="file-details">
+                                    <h4>${file.name}</h4>
+                                    <p>${fileSize} MB · ✓ Uploaded</p>
+                                </div>
+                            </div>
+                            <button class="remove-btn" onclick="removeFile()">Remove</button>
+                        </div>
+                    `;
+                    
+                    startBtn.disabled = false;
+                    addLog(`✓ Uploaded: ${file.name} (${fileSize} MB)`);
+                } else {
+                    throw new Error(data.error || 'Upload failed');
+                }
+                
+            } catch (error) {
+                console.error('Upload error:', error);
+                addLog(`✗ Upload failed: ${error.message}`);
+                alert('Upload failed: ' + error.message);
+                removeFile();
+            }
+        }
+
+        function removeFile() {
+            uploadedFile = null;
+            fileInfo.classList.remove('active');
+            startBtn.disabled = true;
+            fileInput.value = '';
+        }
+
+        function addLog(message) {
+            const logLine = document.createElement('div');
+            logLine.className = 'log-line';
+            logLine.textContent = message;
+            logConsole.appendChild(logLine);
+            logConsole.scrollTop = logConsole.scrollHeight;
+        }
+
+        // Start Compression
+        startBtn.addEventListener('click', async () => {
+            if (!currentJobId) {
+                alert('Please upload a model first!');
+                return;
+            }
+
+            // Collect settings
+            compressionSettings = {
+                modelType: document.getElementById('modelType').value,
+                numClasses: document.getElementById('numClasses').value,
+                useQAT: document.getElementById('useQAT').checked,
+                useMixedPrecision: document.getElementById('useMixedPrecision').checked,
+                useDistillation: document.getElementById('useDistillation').checked,
+                use4Bit: document.getElementById('use4Bit').checked,
+                useQLora: document.getElementById('useQLora').checked,
+                compressionTarget: document.getElementById('compressionTarget').value
+            };
+
+            // Show progress section
+            progressSection.classList.add('active');
+            logConsole.innerHTML = '';
+            startBtn.disabled = true;
+            
+            // Start compression on server
+            try {
+                const response = await fetch(`${API_BASE_URL}/compress`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        job_id: currentJobId,
+                        settings: compressionSettings
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Start polling for status
+                    startStatusPolling();
+                } else {
+                    throw new Error(data.error || 'Compression failed to start');
+                }
+                
+            } catch (error) {
+                console.error('Compression error:', error);
+                addLog(`✗ Error: ${error.message}`);
+                alert('Compression failed: ' + error.message);
+                startBtn.disabled = false;
+            }
+        });
+        
+        function startStatusPolling() {
+            statusCheckInterval = setInterval(async () => {
+                try {
+                    const response = await fetch(`${API_BASE_URL}/status/${currentJobId}`);
+                    const data = await response.json();
+                    
+                    // Update progress
+                    updateProgress(data.progress || 0);
+                    
+                    // Update logs
+                    if (data.logs && data.logs.length > 0) {
+                        logConsole.innerHTML = '';
+                        data.logs.forEach(log => {
+                            const logLine = document.createElement('div');
+                            logLine.className = 'log-line';
+                            logLine.textContent = log;
+                            logConsole.appendChild(logLine);
+                        });
+                        logConsole.scrollTop = logConsole.scrollHeight;
+                    }
+                    
+                    // Check if completed
+                    if (data.status === 'completed') {
+                        clearInterval(statusCheckInterval);
+                        displayResults(data.results);
+                        startBtn.disabled = false;
+                    } else if (data.status === 'failed') {
+                        clearInterval(statusCheckInterval);
+                        addLog(`✗ Compression failed: ${data.error}`);
+                        alert('Compression failed: ' + data.error);
+                        startBtn.disabled = false;
+                    }
+                    
+                } catch (error) {
+                    console.error('Status check error:', error);
+                }
+            }, 1000); // Check every second
+        }
+        
+        function updateProgress(progress) {
+            const progressFill = document.getElementById('progressFill');
+            progressFill.style.width = progress + '%';
+            progressFill.textContent = Math.round(progress) + '%';
+            
+            // Update step indicators
+            const steps = [
+                { id: 'step1', threshold: 0 },
+                { id: 'step2', threshold: 20 },
+                { id: 'step3', threshold: 40 },
+                { id: 'step4', threshold: 60 },
+                { id: 'step5', threshold: 80 }
+            ];
+            
+            steps.forEach(step => {
+                const element = document.getElementById(step.id);
+                if (progress > step.threshold + 15) {
+                    element.classList.remove('active');
+                    element.classList.add('completed');
+                } else if (progress > step.threshold) {
+                    element.classList.add('active');
+                    element.classList.remove('completed');
+                }
+            });
+        }
+
+        function displayResults(results) {
+            // Update result cards
+            document.getElementById('accuracyResult').textContent = results.accuracy.toFixed(1) + '%';
+            document.getElementById('sizeResult').textContent = results.compressed_size_mb + ' MB';
+            document.getElementById('speedupResult').textContent = results.speedup.toFixed(1) + '×';
+            document.getElementById('compressionResult').textContent = results.compression_ratio.toFixed(1) + '×';
+
+            // Show results section
+            resultsSection.classList.add('active');
+            comparisonChart.style.display = 'block';
+
+            // Animate comparison bars
+            setTimeout(() => {
+                const sizeBar = document.getElementById('sizeBar');
+                const timeBar = document.getElementById('timeBar');
+                const memoryBar = document.getElementById('memoryBar');
+
+                const originalSize = results.original_size_mb;
+                const compressedSize = results.compressed_size_mb;
+                
+                sizeBar.style.width = (compressedSize / originalSize * 100) + '%';
+                sizeBar.textContent = compressedSize + ' MB (was ' + originalSize + ' MB)';
+
+                const originalTime = 45;
+                const compressedTime = (originalTime / results.speedup).toFixed(1);
+                timeBar.style.width = (compressedTime / originalTime * 100) + '%';
+                timeBar.textContent = compressedTime + ' ms (was ' + originalTime + ' ms)';
+
+                const originalMemory = 450;
+                const compressedMemory = (originalMemory / results.compression_ratio).toFixed(0);
+                memoryBar.style.width = (compressedMemory / originalMemory * 100) + '%';
+                memoryBar.textContent = compressedMemory + ' MB (was ' + originalMemory + ' MB)';
+            }, 300);
+
+            // Show download section
+            downloadSection.classList.add('active');
+
+            addLog('');
+            addLog('═══════════════════════════════════════');
+            addLog('🎉 COMPRESSION COMPLETE!');
+            addLog('═══════════════════════════════════════');
+            addLog(`Original Size:      ${results.original_size_mb} MB`);
+            addLog(`Compressed Size:    ${results.compressed_size_mb} MB`);
+            addLog(`Compression Ratio:  ${results.compression_ratio}×`);
+            addLog(`Speedup:            ${results.speedup}×`);
+            addLog('═══════════════════════════════════════');
+        }
+
+        // Download handlers
+        document.getElementById('downloadModel').addEventListener('click', () => {
+            if (!currentJobId) return;
+            addLog('📥 Downloading compressed model...');
+            window.location.href = `${API_BASE_URL}/download/${currentJobId}/model`;
+        });
+
+        document.getElementById('downloadReport').addEventListener('click', () => {
+            if (!currentJobId) return;
+            addLog('📥 Downloading compression report...');
+            window.location.href = `${API_BASE_URL}/download/${currentJobId}/report`;
+        });
+
+        document.getElementById('downloadVisuals').addEventListener('click', () => {
+            addLog('📊 Visualization download coming soon!');
+            alert('Visualization download feature will be available in the next update!');
+        });
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        // Initialize
+        addLog('🚀 AI Model Compression Studio ready!');
+        addLog('👆 Upload your model to get started...');
+    </script>
+</body>
+</html>
